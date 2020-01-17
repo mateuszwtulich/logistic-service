@@ -1,6 +1,7 @@
 package com.example.logisticserivce.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -12,6 +13,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Accessors(chain = true)
+@AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Entity

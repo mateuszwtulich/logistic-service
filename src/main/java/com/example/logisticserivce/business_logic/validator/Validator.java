@@ -11,7 +11,7 @@ import java.util.Optional;
 @Slf4j
 @AllArgsConstructor
 @Component
-public class Validator {
+public abstract class Validator {
     private static final String FORBIDDEN_CHAR_KEY = "forbiddenChar";
     private static final String FORBIDDEN_CHAR_MSG = "Forbidden characters ''{0}'' were used.";
     private static final String REGEX_TO_VALIDATE_FIELD = "[a-zA-Z0-9_\\-`.+, ]+";

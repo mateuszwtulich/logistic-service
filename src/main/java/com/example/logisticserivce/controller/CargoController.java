@@ -34,6 +34,11 @@ public class CargoController {
         return new ResponseEntity<>(cargoService.addCargo(newCargo), HttpStatus.OK);
     }
 
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Cargo> modifyCargo(@PathVariable(name = "id") Long id, @RequestBody @Valid CargoDto modifiedCargo) {
+        return new ResponseEntity<>(cargoService.modifyCargo(id, modifiedCargo), HttpStatus.OK);
+    }
+
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteCargo(@PathVariable(name = "id") Long id) {
         cargoService.deleteCargo(id);
