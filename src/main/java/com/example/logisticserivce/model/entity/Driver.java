@@ -35,14 +35,14 @@ public class Driver implements Serializable {
     private String surname;
 
     @OneToOne
-    @JoinColumn(name = "LorryId", referencedColumnName = "LicenceNumber")
+    @JoinColumn(name = "LorryId", referencedColumnName = "Id")
     private Lorry lorry;
 
     @NotBlank(message = "'phoneNumber' must not be blank")
-    @Column(name = "PhoneNumber", length = 64, nullable = false, unique = true)
+    @Column(name = "PhoneNumber", length = 64, nullable = false)
     private String phoneNumber;
 
-    @NotBlank(message = "'status' must not be blank")
+    @Enumerated(EnumType.STRING)
     @Column(name = "Status", length = 64, nullable = false)
     private DriverStatus status;
 
@@ -50,6 +50,7 @@ public class Driver implements Serializable {
     @Column(name = "Login", length = 64, nullable = false, unique = true)
     private String login;
 
+    @JsonIgnore
     @NotBlank(message = "'password' must not be blank")
     @Column(name = "Password", length = 64, nullable = false)
     private String password;

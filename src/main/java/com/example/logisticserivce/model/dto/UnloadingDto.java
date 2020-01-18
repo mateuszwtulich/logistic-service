@@ -13,12 +13,9 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UnloadingDto {
-    @NonNull
     private Double latitude;
 
-    @NonNull
     private Double longitude;
 
-    @NotBlank(message = "'address' must not be blank")
     private String address;
 }

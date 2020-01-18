@@ -13,9 +13,7 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 public class PrincipalDto {
 
-    @NotBlank(message = "'name' must not be blank")
     private String name;
 
-    @NotBlank(message = "'address' must not be blank")
     private String address;
 }

@@ -21,6 +21,10 @@ public class Lorry implements Serializable {
 
     @Id
     @NonNull
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "Id", nullable = false, unique = true)
+    private Long id;
+
     @NotBlank(message = "'licenceNumber' must not be blank")
     @Column(name = "LicenceNumber", length = 8, nullable = false, unique = true)
     private String licenceNumber;
@@ -29,7 +33,7 @@ public class Lorry implements Serializable {
     @Column(name = "Model", length = 64, nullable = false)
     private String model;
 
-    @NotBlank(message = "'status' must not be blank")
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 64, nullable = false)
     private LorryStatus status;
 

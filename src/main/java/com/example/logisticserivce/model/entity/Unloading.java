@@ -24,12 +24,10 @@ public class Unloading implements Serializable {
     @Column(name = "Id", nullable = false, unique = true)
     private Long id;
 
-    @NonNull
-    @Column(name = "Latitude", nullable = false)
+    @Column(name = "Latitude")
     private Double latitude;
 
-    @NonNull
-    @Column(name = "Longitude", nullable = false)
+    @Column(name = "Longitude")
     private Double longitude;
 
     @NotBlank(message = "'address' must not be blank")

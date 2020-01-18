@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import javax.validation.constraints.NotBlank;
 
 @Accessors(chain = true)
 @Data
@@ -14,19 +13,17 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 public class DriverDto {
 
-    @NotBlank(message = "'name' must not be blank")
     private String name;
 
-    @NotBlank(message = "'surname' must not be blank")
     private String surname;
 
-    private LorryDto lorry;
+    private Long lorryId;
 
-    @NotBlank(message = "'phoneNumber' must not be blank")
     private String phoneNumber;
 
-    @NotBlank(message = "'status' must not be blank")
     private DriverStatus status;
 
+    private String login;
 
+    private String password;
 }

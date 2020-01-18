@@ -1,9 +1,9 @@
 package com.example.logisticserivce.business_logic.service;
 
 import com.example.logisticserivce.business_logic.exception.ResourceAlreadyExistsException;
+import com.example.logisticserivce.business_logic.exception.ResourceNotFoundException;
 import com.example.logisticserivce.business_logic.validator.CargoValidator;
-import com.example.logisticserivce.business_logic.validator.Validator;
-import com.example.logisticserivce.mapper.CargoDtoCargoMappper;
+import com.example.logisticserivce.mapper.CargoDtoCargoMapper;
 import com.example.logisticserivce.model.dto.CargoDto;
 import com.example.logisticserivce.model.entity.Cargo;
 import com.example.logisticserivce.repository.CargoRepository;
@@ -22,7 +22,7 @@ import java.util.Optional;
 public class CargoService {
 
     private final CargoRepository cargoRepository;
-    private final CargoDtoCargoMappper cargoMapper;
+    private final CargoDtoCargoMapper cargoMapper;
     private final CargoValidator validator;
 
     public List<Cargo> getCargoList() {
@@ -30,14 +30,7 @@ public class CargoService {
     }
 
     public Cargo getCargo(Long id){
-        Optional<Cargo> cargo = cargoRepository.findById(id);
-        try{
-        if (!cargo.isPresent())
-            throw new Exception();
-        }catch (Exception ex){
-            ex.printStackTrace();
-        }
-        return cargo.get();
+        return getCargoFromRepository(id);
     }
 
     public Cargo addCargo(CargoDto cargoDto){
@@ -64,6 +57,17 @@ public class CargoService {
             throw ex;
         }
         return cargoRepository.save(cargoMapper.cargoDtoToCargo(modifiedCargo).setId(id));
+    }
+
+    private Cargo getCargoFromRepository(Long id) {
+        final Optional<Cargo> cargo = cargoRepository.findById(id);
+        try {
+            validator.validateCargoIfExists(cargo, id.toString());
+        } catch (ResourceNotFoundException ex) {
+            log.error(ex.getMessage(), ex);
+            throw ex;
+        }
+        return cargo.get();
     }
 
     public void trimString(CargoDto cargoDto){

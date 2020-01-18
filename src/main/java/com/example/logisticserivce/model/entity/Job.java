@@ -48,12 +48,10 @@ public class Job implements Serializable {
     private Manager manager;
 
     @ManyToOne
-//    @Column(name = "DriverId")
     @JoinColumn(name = "Driver", referencedColumnName = "Id", nullable = false)
     private Driver driver;
 
     @ManyToOne
-//    @Column(name = "CargoId")
     @JoinColumn(name = "Cargo", referencedColumnName = "Id", nullable = false)
     private Cargo cargo;
 
@@ -83,7 +81,7 @@ public class Job implements Serializable {
     @Column(name = "Comment")
     private String comment;
 
-    @NotBlank(message = "'status' must not be blank")
+    @Enumerated(EnumType.STRING)
     @Column(name = "Status", nullable = false)
     private JobStatus status;
 }

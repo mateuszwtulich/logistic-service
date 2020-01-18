@@ -1,5 +1,6 @@
 package com.example.logisticserivce.model.dto;
 
+import com.example.logisticserivce.model.enumerator.LorryStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,12 +13,9 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LorryDto {
-    @NotBlank(message = "'licenceNumber' must not be blank")
     private String licenceNumber;
 
-    @NotBlank(message = "'model' must not be blank")
     private String model;
 
-    @NotBlank(message = "'status' must not be blank")
-    private String status;
+    private LorryStatus status;
 }

@@ -13,9 +13,11 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 public class ManagerDto {
 
-    @NotBlank(message = "'name' must not be blank")
     private String name;
 
-    @NotBlank(message = "'surname' must not be blank")
     private String surname;
+
+    private String login;
+
+    private String password;
 }

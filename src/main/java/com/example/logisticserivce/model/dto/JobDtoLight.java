@@ -27,7 +27,7 @@ public class JobDtoLight {
     private DriverDto driver;
 
     @NonNull
-    private CargoDto cargo;
+    private DriverDto cargo;
 
     @NonNull
     private UnloadingDto unloading;

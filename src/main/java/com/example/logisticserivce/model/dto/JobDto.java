@@ -1,5 +1,6 @@
 package com.example.logisticserivce.model.dto;
 
+import com.example.logisticserivce.model.enumerator.JobStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,22 +26,22 @@ public class JobDto {
     private String commissionedParty;
 
     @NonNull
-    private PrincipalDto principal;
+    private Long principalId;
 
     @NonNull
-    private ManagerDto manager;
+    private Long managerId;
 
     @NonNull
-    private DriverDto driver;
+    private Long driverId;
 
     @NonNull
-    private CargoDto cargo;
+    private Long cargoId;
 
     @NonNull
-    private UnloadingDto unloading;
+    private Long unloadingId;
 
     @NonNull
-    private LoadingDto loading;
+    private Long loadingId;
 
     @NotBlank(message = "'placeOfIssue' must not be blank")
     private String placeOfIssue;
@@ -55,5 +56,5 @@ public class JobDto {
     private String comment;
 
     @NotBlank(message = "'status' must not be blank")
-    private String status;
+    private JobStatus status;
 }
