@@ -32,8 +32,8 @@ public abstract class Validator {
     }
 
     public void validateStringFieldIfMatchesRegex(String stringField) throws ForbiddenCharException{
-        if (!stringField.matches(REGEX_TO_VALIDATE_FIELD)) {
-            throw new ForbiddenCharException(MessageFormat.format(FORBIDDEN_CHAR_MSG, stringField), FORBIDDEN_CHAR_KEY, stringField);
-        }
+//        if (!stringField.matches(REGEX_TO_VALIDATE_FIELD)) {
+//            throw new ForbiddenCharException(MessageFormat.format(FORBIDDEN_CHAR_MSG, stringField), FORBIDDEN_CHAR_KEY, stringField);
+//        }
     }
 }

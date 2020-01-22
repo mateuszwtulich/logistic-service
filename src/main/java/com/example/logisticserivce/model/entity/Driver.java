@@ -35,7 +35,7 @@ public class Driver implements Serializable {
     private String surname;
 
     @OneToOne
-    @JoinColumn(name = "LorryId", referencedColumnName = "Id")
+    @JoinColumn(name = "LorryId", referencedColumnName = "Id", nullable = true)
     private Lorry lorry;
 
     @NotBlank(message = "'phoneNumber' must not be blank")

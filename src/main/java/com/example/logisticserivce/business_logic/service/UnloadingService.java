@@ -40,7 +40,8 @@ public class UnloadingService {
             log.error(ex.getMessage(), ex);
             throw ex;
         }
-        return unloadingRepository.save(unloadingMapper.unloadingDtoToUnloading(unloadingDto));
+        Unloading unloading = unloadingMapper.unloadingDtoToUnloading(unloadingDto);
+        return unloadingRepository.save(unloading);
     }
 
     public void deleteUnloading(Long id){
@@ -57,7 +58,6 @@ public class UnloadingService {
         }
         Unloading unloading = getUnloadingFromRepository(id)
                 .setAddress(modifiedUnloading.getAddress());
-
         return unloadingRepository.save(unloading);
     }
 

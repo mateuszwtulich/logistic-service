@@ -4,5 +4,6 @@ public enum JobStatus {
     FINISHED,
     UNASSIGNED,
     IN_PROGRESS,
-    ASSIGNED
+    ASSIGNED,
+    SUSPENDED,
 }

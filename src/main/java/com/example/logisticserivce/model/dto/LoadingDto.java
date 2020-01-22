@@ -18,4 +18,6 @@ public class LoadingDto {
     private Double longitude;
 
     private String address;
+
+    private Long principalId;
 }

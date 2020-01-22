@@ -39,9 +39,5 @@ public class Principal implements Serializable {
 
     @JsonIgnore
     @OneToMany(targetEntity = Loading.class, mappedBy = "principal")
-    private List<Job> loadingList;
-
-    @JsonIgnore
-    @OneToMany(targetEntity = Unloading.class, mappedBy = "principal")
-    private List<Job> unloadingList;
+    private List<Loading> loadingList;
 }

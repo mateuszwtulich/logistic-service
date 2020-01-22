@@ -5,6 +5,7 @@ import com.example.logisticserivce.business_logic.exception.ResourceNotFoundExce
 import com.example.logisticserivce.business_logic.validator.LoadingValidator;
 import com.example.logisticserivce.mapper.LoadingDtoLoadingMapper;
 import com.example.logisticserivce.model.dto.LoadingDto;
+import com.example.logisticserivce.model.entity.Driver;
 import com.example.logisticserivce.model.entity.Loading;
 import com.example.logisticserivce.repository.LoadingRepository;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,7 @@ import java.util.Optional;
 public class LoadingService {
     private final LoadingRepository loadingRepository;
     private final LoadingDtoLoadingMapper loadingMapper;
+    private final PrincipalService principalService;
     private final LoadingValidator validator;
 
     public List<Loading> getLoadingList() {
@@ -40,7 +42,11 @@ public class LoadingService {
             log.error(ex.getMessage(), ex);
             throw ex;
         }
-        return loadingRepository.save(loadingMapper.loadingDtoToLoading(loadingDto));
+        Loading loading = loadingMapper.loadingDtoToLoading(loadingDto);
+        if(loadingDto.getPrincipalId() != null){
+            loading.setPrincipal(principalService.getPrincipal(loadingDto.getPrincipalId()));
+        }
+        return loadingRepository.save(loading);
     }
 
     public void deleteLoading(Long id){
@@ -57,7 +63,9 @@ public class LoadingService {
         }
         Loading loading = getLoadingFromRepository(id)
                 .setAddress(modifiedLoading.getAddress());
-
+        if(modifiedLoading.getPrincipalId() != null){
+            loading.setPrincipal(principalService.getPrincipal(modifiedLoading.getPrincipalId()));
+        }
         return loadingRepository.save(loading);
     }
 

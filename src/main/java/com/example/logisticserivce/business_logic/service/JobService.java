@@ -1,11 +1,20 @@
 package com.example.logisticserivce.business_logic.service;
 
+import com.example.logisticserivce.business_logic.exception.DriverNotAvailableException;
 import com.example.logisticserivce.business_logic.exception.ResourceAlreadyExistsException;
 import com.example.logisticserivce.business_logic.exception.ResourceNotFoundException;
+import com.example.logisticserivce.business_logic.validator.DriverValidator;
 import com.example.logisticserivce.business_logic.validator.JobValidator;
+import com.example.logisticserivce.mapper.JobArchiveJobMapper;
 import com.example.logisticserivce.mapper.JobDtoJobMapper;
 import com.example.logisticserivce.model.dto.JobDto;
+import com.example.logisticserivce.model.entity.Driver;
 import com.example.logisticserivce.model.entity.Job;
+import com.example.logisticserivce.model.entity.JobArchive;
+import com.example.logisticserivce.model.enumerator.DriverStatus;
+import com.example.logisticserivce.model.enumerator.JobStatus;
+import com.example.logisticserivce.model.enumerator.LorryStatus;
+import com.example.logisticserivce.repository.JobArchiveRepository;
 import com.example.logisticserivce.repository.JobRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +30,10 @@ import java.util.Optional;
 @Transactional
 public class JobService {
     private final JobRepository jobRepository;
+    private final JobArchiveRepository jobArchiveRepository;
+    private final JobArchiveJobMapper jobArchiveJobMapper;
     private final JobDtoJobMapper jobMapper;
+    private final DriverValidator driverValidator;
     private final JobValidator validator;
     private final DriverService driverService;
     private final CargoService cargoService;
@@ -48,8 +60,16 @@ public class JobService {
             throw ex;
         }
         Job job = jobMapper.jobDtoToJob(jobDto);
-        if(jobDto.getDriverId() != null){
-            job.setDriver(driverService.getDriver(jobDto.getDriverId()));
+
+        if(jobDto.getDriverId() != null) {
+            if (jobDto.getStatus() == JobStatus.ASSIGNED)
+                assignDriverToJob(job, jobDto);
+            if (jobDto.getStatus() == JobStatus.FINISHED)
+                finishJob(job, jobDto);
+            if (jobDto.getStatus() == JobStatus.IN_PROGRESS)
+                setStatusToInProgress(job, jobDto);
+            if (jobDto.getStatus() == JobStatus.SUSPENDED)
+                setEmergencyStatus(job, jobDto);
         }
         if(jobDto.getCargoId() != null){
             job.setCargo(cargoService.getCargo(jobDto.getCargoId()));
@@ -71,6 +91,11 @@ public class JobService {
     }
 
     public void deleteJob(Long id){
+        Job job = getJobFromRepository(id);
+        job.getDriver().setStatus(DriverStatus.AVAILABLE);
+        job.getDriver().getLorry().setStatus(LorryStatus.AVAILABLE);
+        jobArchiveRepository.save(jobArchiveJobMapper.JobToJobArchive(job));
+
         jobRepository.deleteById(id);
     }
 
@@ -89,10 +114,18 @@ public class JobService {
                 .setDate(modifiedJob.getDate())
                 .setNumber(modifiedJob.getNumber())
                 .setPayRate(modifiedJob.getPayRate())
-                .setPlaceOfIssue(modifiedJob.getPlaceOfIssue());
+                .setPlaceOfIssue(modifiedJob.getPlaceOfIssue())
+                .setDriver(null);
 
-        if(modifiedJob.getDriverId() != null){
-            job.setDriver(driverService.getDriver(modifiedJob.getDriverId()));
+        if(modifiedJob.getDriverId() != null) {
+            if (modifiedJob.getStatus() == JobStatus.ASSIGNED)
+                assignDriverToJob(job, modifiedJob);
+            if (modifiedJob.getStatus() == JobStatus.FINISHED)
+                finishJob(job, modifiedJob);
+            if (modifiedJob.getStatus() == JobStatus.IN_PROGRESS)
+                setStatusToInProgress(job, modifiedJob);
+            if (modifiedJob.getStatus() == JobStatus.SUSPENDED)
+                setEmergencyStatus(job, modifiedJob);
         }
         if(modifiedJob.getCargoId() != null){
             job.setCargo(cargoService.getCargo(modifiedJob.getCargoId()));
@@ -123,7 +156,7 @@ public class JobService {
         return job.get();
     }
 
-    public void trimStringFields(JobDto jobDto){
+    private void trimStringFields(JobDto jobDto){
         final Optional<String> commissionedParty = Optional.of(jobDto.getCommissionedParty());
         if(validator.isStringFieldValid(commissionedParty)){
             jobDto.setCommissionedParty(commissionedParty.get().trim());
@@ -136,5 +169,41 @@ public class JobService {
         if(validator.isStringFieldValid(placeOfIssue)){
             jobDto.setPlaceOfIssue(placeOfIssue.get().trim());
         }
+    }
+
+    private void assignDriverToJob(Job job, JobDto jobDto){
+        Driver driver = driverService.getDriver(jobDto.getDriverId());
+        try{
+            driverValidator.validateDriverIfIsAvailable(driver);
+            driverValidator.validateIfDriverHasAssignedLorry(driver);
+            job.setDriver(driverService.getDriver(jobDto.getDriverId()));
+            driver.setStatus(DriverStatus.UNAVAILABLE);
+            driver.getLorry().setStatus(LorryStatus.UNAVAILABLE);
+            job.setStatus(JobStatus.ASSIGNED);
+        }catch (DriverNotAvailableException ex){
+            log.error(ex.getMessage(), ex);
+            throw ex;
+        }
+    }
+
+    private void finishJob(Job job, JobDto jobDto){
+        Driver driver = driverService.getDriver(jobDto.getDriverId());
+        job.setStatus(JobStatus.FINISHED);
+        driver.setStatus(DriverStatus.AVAILABLE);
+        driver.getLorry().setStatus(LorryStatus.AVAILABLE);
+    }
+
+    private void setStatusToInProgress(Job job, JobDto jobDto){
+        Driver driver = driverService.getDriver(jobDto.getDriverId());
+        job.setStatus(JobStatus.IN_PROGRESS);
+        driver.setStatus(DriverStatus.WORKING);
+        driver.getLorry().setStatus(LorryStatus.WORKING);
+    }
+
+    private void setEmergencyStatus(Job job, JobDto jobDto){
+        Driver driver = driverService.getDriver(jobDto.getDriverId());
+        job.setStatus(JobStatus.SUSPENDED);
+        driver.setStatus(DriverStatus.WORKING);
+        driver.getLorry().setStatus(LorryStatus.EMERGENCY);
     }
 }

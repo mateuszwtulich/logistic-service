@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -25,10 +26,10 @@ public class Loading implements Serializable {
     @Column(name = "Id", nullable = false, unique = true)
     private Long id;
 
-    @Column(name = "Latitude")
+    @Column(name = "Latitude", nullable = true)
     private Double latitude;
 
-    @Column(name = "Longitude")
+    @Column(name = "Longitude", nullable = true)
     private Double longitude;
 
     @NotBlank(message = "'address' must not be blank")

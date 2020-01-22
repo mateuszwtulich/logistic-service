@@ -22,7 +22,6 @@ public class JobDto {
     @NonNull
     private Timestamp date;
 
-    @NotBlank(message = "'commissionedParty' must not be blank")
     private String commissionedParty;
 
     @NonNull
@@ -31,7 +30,6 @@ public class JobDto {
     @NonNull
     private Long managerId;
 
-    @NonNull
     private Long driverId;
 
     @NonNull
@@ -43,7 +41,6 @@ public class JobDto {
     @NonNull
     private Long loadingId;
 
-    @NotBlank(message = "'placeOfIssue' must not be blank")
     private String placeOfIssue;
 
     @NonNull
@@ -52,9 +49,7 @@ public class JobDto {
     @NonNull
     private Integer payRate;
 
-    @NotBlank(message = "'comment' must not be blank")
     private String comment;
 
-    @NotBlank(message = "'status' must not be blank")
     private JobStatus status;
 }

@@ -5,7 +5,9 @@ import com.example.logisticserivce.business_logic.exception.ResourceNotFoundExce
 import com.example.logisticserivce.business_logic.validator.PrincipalValidator;
 import com.example.logisticserivce.mapper.PrincipalDtoPrincipalMapper;
 import com.example.logisticserivce.model.dto.PrincipalDto;
+import com.example.logisticserivce.model.entity.Loading;
 import com.example.logisticserivce.model.entity.Principal;
+import com.example.logisticserivce.model.entity.Unloading;
 import com.example.logisticserivce.repository.PrincipalRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -85,4 +87,9 @@ public class PrincipalService {
             principalDto.setAddress(address.get().trim());
         }
     }
+
+    public List<Loading> getLoadingList(Long id) {
+        return getPrincipalFromRepository(id).getLoadingList();
+    }
+
 }

@@ -48,7 +48,7 @@ public class Job implements Serializable {
     private Manager manager;
 
     @ManyToOne
-    @JoinColumn(name = "Driver", referencedColumnName = "Id", nullable = false)
+    @JoinColumn(name = "Driver", referencedColumnName = "Id", nullable = true)
     private Driver driver;
 
     @ManyToOne

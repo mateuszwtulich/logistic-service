@@ -1,5 +1,6 @@
 package com.example.logisticserivce.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -24,21 +25,18 @@ public class Unloading implements Serializable {
     @Column(name = "Id", nullable = false, unique = true)
     private Long id;
 
-    @Column(name = "Latitude")
+    @Column(name = "Latitude", nullable = true)
     private Double latitude;
 
-    @Column(name = "Longitude")
+    @Column(name = "Longitude", nullable = true)
     private Double longitude;
 
     @NotBlank(message = "'address' must not be blank")
     @Column(name = "Address", nullable = false, unique = true)
     private String address;
 
+    @JsonIgnore
     @OneToMany(targetEntity = Job.class, mappedBy = "unloading")
     private List<Job> jobList;
 
-    @ManyToOne
-//    @Column(name = "PrincipalId")
-    @JoinColumn(name = "Principal", referencedColumnName = "Id", nullable = false)
-    private Principal principal;
 }
