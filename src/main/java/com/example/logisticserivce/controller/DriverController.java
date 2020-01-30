@@ -2,6 +2,8 @@ package com.example.logisticserivce.controller;
 
 import com.example.logisticserivce.business_logic.service.DriverService;
 import com.example.logisticserivce.model.dto.DriverDto;
+import com.example.logisticserivce.model.dto.JobDto;
+import com.example.logisticserivce.model.dto.JobDtoOutput;
 import com.example.logisticserivce.model.entity.Driver;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,11 @@ public class DriverController {
     @GetMapping
     public ResponseEntity<Iterable<Driver>> getDrivers() {
         return new ResponseEntity<>(driverService.getDriverList(), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/jobs")
+    public ResponseEntity<Iterable<JobDtoOutput>> getDriverJobs(@PathVariable(name = "id") Long id){
+        return new ResponseEntity<>(driverService.getJobList(id), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

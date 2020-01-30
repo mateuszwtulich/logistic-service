@@ -5,6 +5,7 @@ import com.example.logisticserivce.business_logic.exception.ResourceNotFoundExce
 import com.example.logisticserivce.business_logic.validator.PrincipalValidator;
 import com.example.logisticserivce.mapper.PrincipalDtoPrincipalMapper;
 import com.example.logisticserivce.model.dto.PrincipalDto;
+import com.example.logisticserivce.model.entity.Cargo;
 import com.example.logisticserivce.model.entity.Loading;
 import com.example.logisticserivce.model.entity.Principal;
 import com.example.logisticserivce.model.entity.Unloading;
@@ -92,4 +93,7 @@ public class PrincipalService {
         return getPrincipalFromRepository(id).getLoadingList();
     }
 
+    public List<Cargo> getCargoList(Long id) {
+        return getPrincipalFromRepository(id).getCargoList();
+    }
 }

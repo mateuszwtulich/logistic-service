@@ -60,7 +60,42 @@ public class JobService {
             throw ex;
         }
         Job job = jobMapper.jobDtoToJob(jobDto);
+        return jobRepository.save(checkStatusAndConvertObjects(jobDto, job));
+    }
 
+    public void deleteJob(Long id){
+        Job job = getJobFromRepository(id);
+        if(job.getDriver() != null) {
+            job.getDriver().setStatus(DriverStatus.AVAILABLE);
+            job.getDriver().getLorry().setStatus(LorryStatus.AVAILABLE);
+        }
+        jobArchiveRepository.save(jobArchiveJobMapper.JobToJobArchive(job));
+        jobRepository.deleteById(id);
+    }
+
+    public Job modifyJob(Long id, JobDto modifiedJob) {
+        trimStringFields(modifiedJob);
+        try {
+            validator.validateJobIfNumberAlreadyExists(modifiedJob.getNumber(), id);
+        } catch (ResourceAlreadyExistsException ex) {
+            log.error(ex.getMessage(), ex);
+            throw ex;
+        }
+        Job job = getJobFromRepository(id)
+                .setStatus(modifiedJob.getStatus())
+                .setComment(modifiedJob.getComment())
+                .setCommissionedParty(modifiedJob.getCommissionedParty())
+                .setDate(modifiedJob.getDate())
+                .setNumber(modifiedJob.getNumber())
+                .setPayRate(modifiedJob.getPayRate())
+                .setPlaceOfIssue(modifiedJob.getPlaceOfIssue());
+
+        return jobRepository.save(checkStatusAndConvertObjects(modifiedJob, job));
+    }
+
+    private Job checkStatusAndConvertObjects(JobDto jobDto, Job job){
+        if (jobDto.getStatus() == JobStatus.UNASSIGNED)
+            setStatusToUnassigned(job, jobDto);
         if(jobDto.getDriverId() != null) {
             if (jobDto.getStatus() == JobStatus.ASSIGNED)
                 assignDriverToJob(job, jobDto);
@@ -86,63 +121,7 @@ public class JobService {
         if(jobDto.getUnloadingId() != null){
             job.setUnloading(unloadingService.getUnloading(jobDto.getUnloadingId()));
         }
-
-        return jobRepository.save(job);
-    }
-
-    public void deleteJob(Long id){
-        Job job = getJobFromRepository(id);
-        job.getDriver().setStatus(DriverStatus.AVAILABLE);
-        job.getDriver().getLorry().setStatus(LorryStatus.AVAILABLE);
-        jobArchiveRepository.save(jobArchiveJobMapper.JobToJobArchive(job));
-
-        jobRepository.deleteById(id);
-    }
-
-    public Job modifyJob(Long id, JobDto modifiedJob) {
-        trimStringFields(modifiedJob);
-        try {
-            validator.validateJobIfNumberAlreadyExists(modifiedJob.getNumber(), id);
-        } catch (ResourceAlreadyExistsException ex) {
-            log.error(ex.getMessage(), ex);
-            throw ex;
-        }
-        Job job = getJobFromRepository(id)
-                .setStatus(modifiedJob.getStatus())
-                .setComment(modifiedJob.getComment())
-                .setCommissionedParty(modifiedJob.getCommissionedParty())
-                .setDate(modifiedJob.getDate())
-                .setNumber(modifiedJob.getNumber())
-                .setPayRate(modifiedJob.getPayRate())
-                .setPlaceOfIssue(modifiedJob.getPlaceOfIssue())
-                .setDriver(null);
-
-        if(modifiedJob.getDriverId() != null) {
-            if (modifiedJob.getStatus() == JobStatus.ASSIGNED)
-                assignDriverToJob(job, modifiedJob);
-            if (modifiedJob.getStatus() == JobStatus.FINISHED)
-                finishJob(job, modifiedJob);
-            if (modifiedJob.getStatus() == JobStatus.IN_PROGRESS)
-                setStatusToInProgress(job, modifiedJob);
-            if (modifiedJob.getStatus() == JobStatus.SUSPENDED)
-                setEmergencyStatus(job, modifiedJob);
-        }
-        if(modifiedJob.getCargoId() != null){
-            job.setCargo(cargoService.getCargo(modifiedJob.getCargoId()));
-        }
-        if(modifiedJob.getManagerId() != null){
-            job.setManager(managerService.getManager(modifiedJob.getManagerId()));
-        }
-        if(modifiedJob.getPrincipalId() != null){
-            job.setPrincipal(principalService.getPrincipal(modifiedJob.getPrincipalId()));
-        }
-        if(modifiedJob.getLoadingId() != null){
-            job.setLoading(loadingService.getLoading(modifiedJob.getLoadingId()));
-        }
-        if(modifiedJob.getUnloadingId() != null){
-            job.setUnloading(unloadingService.getUnloading(modifiedJob.getUnloadingId()));
-        }
-        return jobRepository.save(job);
+        return job;
     }
 
     private Job getJobFromRepository(Long id) {
@@ -174,11 +153,8 @@ public class JobService {
     private void assignDriverToJob(Job job, JobDto jobDto){
         Driver driver = driverService.getDriver(jobDto.getDriverId());
         try{
-            driverValidator.validateDriverIfIsAvailable(driver);
             driverValidator.validateIfDriverHasAssignedLorry(driver);
             job.setDriver(driverService.getDriver(jobDto.getDriverId()));
-            driver.setStatus(DriverStatus.UNAVAILABLE);
-            driver.getLorry().setStatus(LorryStatus.UNAVAILABLE);
             job.setStatus(JobStatus.ASSIGNED);
         }catch (DriverNotAvailableException ex){
             log.error(ex.getMessage(), ex);
@@ -188,6 +164,7 @@ public class JobService {
 
     private void finishJob(Job job, JobDto jobDto){
         Driver driver = driverService.getDriver(jobDto.getDriverId());
+        job.setDriver(driver);
         job.setStatus(JobStatus.FINISHED);
         driver.setStatus(DriverStatus.AVAILABLE);
         driver.getLorry().setStatus(LorryStatus.AVAILABLE);
@@ -195,9 +172,16 @@ public class JobService {
 
     private void setStatusToInProgress(Job job, JobDto jobDto){
         Driver driver = driverService.getDriver(jobDto.getDriverId());
-        job.setStatus(JobStatus.IN_PROGRESS);
-        driver.setStatus(DriverStatus.WORKING);
-        driver.getLorry().setStatus(LorryStatus.WORKING);
+        try {
+            driverValidator.validateDriverIfIsAvailable(driver);
+            driverValidator.validateIfDriverHasAssignedLorry(driver);
+            driver.setStatus(DriverStatus.WORKING);
+            driver.getLorry().setStatus(LorryStatus.WORKING);
+            job.setStatus(JobStatus.IN_PROGRESS);
+        }catch (DriverNotAvailableException ex){
+            log.error(ex.getMessage(), ex);
+            throw ex;
+        }
     }
 
     private void setEmergencyStatus(Job job, JobDto jobDto){
@@ -205,5 +189,15 @@ public class JobService {
         job.setStatus(JobStatus.SUSPENDED);
         driver.setStatus(DriverStatus.WORKING);
         driver.getLorry().setStatus(LorryStatus.EMERGENCY);
+    }
+
+    private void setStatusToUnassigned(Job job, JobDto jobDto){
+        if(job.getDriver() != null) {
+            Driver driver = job.getDriver();
+            driver.setStatus(DriverStatus.AVAILABLE);
+            driver.getLorry().setStatus(LorryStatus.AVAILABLE);
+        }
+        job.setStatus(JobStatus.UNASSIGNED);
+        job.setDriver(null);
     }
 }

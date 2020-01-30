@@ -5,16 +5,19 @@ import com.example.logisticserivce.business_logic.exception.ResourceNotFoundExce
 import com.example.logisticserivce.business_logic.validator.DriverValidator;
 import com.example.logisticserivce.mapper.DriverDtoDriverMapper;
 import com.example.logisticserivce.model.dto.DriverDto;
+import com.example.logisticserivce.model.dto.JobDto;
+import com.example.logisticserivce.model.dto.JobDtoOutput;
 import com.example.logisticserivce.model.entity.Driver;
 import com.example.logisticserivce.model.enumerator.DriverStatus;
 import com.example.logisticserivce.repository.DriverRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @AllArgsConstructor
@@ -32,6 +35,32 @@ public class DriverService {
 
     public Driver getDriver(Long id){
         return getDriverFromRepository(id);
+    }
+
+    public List<JobDtoOutput> getJobList(Long id){
+        Driver driver = getDriverFromRepository(id);
+        Stream s = driver.getJobList().stream().map(job ->
+            new JobDtoOutput().setId(job.getId())
+                    .setPlaceOfIssue(job.getPlaceOfIssue())
+                    .setComment(job.getComment())
+                    .setCommissionedParty(job.getCommissionedParty())
+                    .setCargoId(job.getCargo().getId())
+                    .setDriverId(job.getDriver().getId())
+                    .setLoadingId(job.getLoading().getId())
+                    .setManagerId(job.getManager().getId())
+                    .setNumber(job.getNumber())
+                    .setPayRate(job.getPayRate())
+                    .setStatus(job.getStatus())
+                    .setPrincipalId(job.getPrincipal().getId())
+                    .setDate(job.getDate())
+                    .setUnloadingId(job.getUnloading().getId())
+                    .setWeight(job.getWeight())
+                    .setCargo(job.getCargo().getType())
+                    .setLoading(job.getLoading().getAddress())
+                    .setDestination(job.getUnloading().getAddress())
+        );
+        List<JobDtoOutput> list = (List<JobDtoOutput>) s.collect(Collectors.toList());
+        return list;
     }
 
     public Driver addDriver(DriverDto driverDto){

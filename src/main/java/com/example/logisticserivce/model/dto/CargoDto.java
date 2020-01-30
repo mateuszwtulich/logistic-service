@@ -11,4 +11,6 @@ import lombok.NoArgsConstructor;
 public class CargoDto {
 
     private String type;
+
+    private Long principalId;
 }

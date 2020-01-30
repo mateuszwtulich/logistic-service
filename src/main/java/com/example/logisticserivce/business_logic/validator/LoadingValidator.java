@@ -2,7 +2,10 @@ package com.example.logisticserivce.business_logic.validator;
 
 import com.example.logisticserivce.business_logic.exception.ResourceAlreadyExistsException;
 import com.example.logisticserivce.business_logic.exception.ResourceNotFoundException;
+import com.example.logisticserivce.business_logic.service.PrincipalService;
+import com.example.logisticserivce.model.dto.LoadingDto;
 import com.example.logisticserivce.model.entity.Loading;
+import com.example.logisticserivce.model.entity.Principal;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +20,7 @@ public class LoadingValidator extends Validator{
     private static final String LOADING_WITH_ADDRESS_ALREADY_EXISTS_KEY = "LoadingAlreadyExists";
     private static final String LOADING_WITH_ADDRESS_ALREADY_EXISTS_MSG = "Loading with address ''{0}'' already exists.";
     private final com.example.logisticserivce.repository.LoadingRepository loadingRepository;
+    private final PrincipalService principalService;
 
     public void validateLoadingIfExists(Optional<Loading> loading, String identificator) throws ResourceNotFoundException {
         if(!loading.isPresent()){
@@ -25,15 +29,15 @@ public class LoadingValidator extends Validator{
         }
     }
 
-    public void validateLoadingIfAddressAlreadyExists(String address) throws ResourceAlreadyExistsException {
-        if(isLoadingAddressAlreadyExists(address)) {
-            throwLoadingAddressAlreadyExistsExceptionFor(address);
+    public void validateLoadingIfAddressAlreadyExists(LoadingDto loading) throws ResourceAlreadyExistsException {
+        if(isLoadingAddressAlreadyExists(loading.getAddress(), principalService.getPrincipal(loading.getPrincipalId()))) {
+            throwLoadingAddressAlreadyExistsExceptionFor(loading.getAddress());
         }
     }
 
-    public void validateLoadingIfAddressAlreadyExists(String address, Long loadingId) throws ResourceAlreadyExistsException {
-        if(isLoadingAddressAlreadyExists(address, loadingId)) {
-            throwLoadingAddressAlreadyExistsExceptionFor(address);
+    public void validateLoadingIfAddressAlreadyExists(LoadingDto loading, Long loadingId) throws ResourceAlreadyExistsException {
+        if(isLoadingAddressAlreadyExists(loading.getAddress(), principalService.getPrincipal(loading.getPrincipalId()), loadingId)) {
+            throwLoadingAddressAlreadyExistsExceptionFor(loading.getAddress());
         }
     }
 
@@ -42,13 +46,13 @@ public class LoadingValidator extends Validator{
                 LOADING_WITH_ADDRESS_ALREADY_EXISTS_KEY, address);
     }
 
-    private boolean isLoadingAddressAlreadyExists(String address){
-        return loadingRepository.existsByAddressIgnoreCase(address);
+    private boolean isLoadingAddressAlreadyExists(String address, Principal principal){
+        return loadingRepository.existsByAddressIgnoreCaseAndPrincipal(address, principal);
     }
 
-    private boolean isLoadingAddressAlreadyExists(String address, Long loadingId){
+    private boolean isLoadingAddressAlreadyExists(String address, Principal principal, Long loadingId){
         Optional<Loading> loading = loadingRepository.findById(loadingId);
         validateLoadingIfExists(loading, loadingId.toString());
-        return (loadingRepository.existsByAddressIgnoreCase(address) && !(loading.get().getAddress().equals(address)));
+        return (loadingRepository.existsByAddressIgnoreCaseAndPrincipal(address, principal) && !(loading.get().getAddress().equals(address)));
     }
 }

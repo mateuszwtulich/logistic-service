@@ -40,4 +40,8 @@ public class Principal implements Serializable {
     @JsonIgnore
     @OneToMany(targetEntity = Loading.class, mappedBy = "principal")
     private List<Loading> loadingList;
+
+    @JsonIgnore
+    @OneToMany(targetEntity = Cargo.class, mappedBy = "principal")
+    private List<Cargo> cargoList;
 }

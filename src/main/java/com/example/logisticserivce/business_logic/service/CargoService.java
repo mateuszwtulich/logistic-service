@@ -24,6 +24,7 @@ public class CargoService {
     private final CargoRepository cargoRepository;
     private final CargoDtoCargoMapper cargoMapper;
     private final CargoValidator validator;
+    private final PrincipalService principalService;
 
     public List<Cargo> getCargoList() {
         return cargoRepository.findAll();
@@ -36,12 +37,17 @@ public class CargoService {
     public Cargo addCargo(CargoDto cargoDto){
         trimString(cargoDto);
         try {
-            validator.validateCargoIfTypeAlreadyExists(cargoDto.getType());
+            validator.validateCargoIfTypeAlreadyExists(cargoDto);
         } catch (ResourceAlreadyExistsException ex) {
             log.error(ex.getMessage(), ex);
             throw ex;
         }
-        return cargoRepository.save(cargoMapper.cargoDtoToCargo(cargoDto));
+
+        Cargo cargo = cargoMapper.cargoDtoToCargo(cargoDto);
+        if(cargoDto.getPrincipalId() != null){
+            cargo.setPrincipal(principalService.getPrincipal(cargoDto.getPrincipalId()));
+        }
+        return cargoRepository.save(cargo);
     }
 
     public void deleteCargo(Long id){
@@ -51,12 +57,18 @@ public class CargoService {
     public Cargo modifyCargo(Long id, CargoDto modifiedCargo) {
         trimString(modifiedCargo);
         try {
-            validator.validateCargoIfTypeAlreadyExists(modifiedCargo.getType(), id);
+            validator.validateCargoIfTypeAlreadyExists(modifiedCargo, id);
         } catch (ResourceAlreadyExistsException ex) {
             log.error(ex.getMessage(), ex);
             throw ex;
         }
-        return cargoRepository.save(cargoMapper.cargoDtoToCargo(modifiedCargo).setId(id));
+        Cargo cargo = getCargoFromRepository(id);
+        cargo.setType(modifiedCargo.getType());
+
+        if(modifiedCargo.getPrincipalId() != null){
+            cargo.setPrincipal(principalService.getPrincipal(modifiedCargo.getPrincipalId()));
+        }
+        return cargoRepository.save(cargo);
     }
 
     private Cargo getCargoFromRepository(Long id) {

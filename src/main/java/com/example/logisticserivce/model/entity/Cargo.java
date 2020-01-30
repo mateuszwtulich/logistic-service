@@ -28,10 +28,14 @@ public class Cargo implements Serializable {
     private Long id;
 
     @NotBlank(message = "'type' must not be blank")
-    @Column(name = "Type", nullable = false, unique = true)
+    @Column(name = "Type", nullable = false)
     private String type;
 
     @JsonIgnore
     @OneToMany(targetEntity = Job.class, mappedBy = "cargo")
     private List<Job> jobList;
+
+    @ManyToOne
+    @JoinColumn(name = "Principal", referencedColumnName = "Id", nullable = false)
+    private Principal principal;
 }

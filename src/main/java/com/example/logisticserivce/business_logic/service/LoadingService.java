@@ -5,7 +5,6 @@ import com.example.logisticserivce.business_logic.exception.ResourceNotFoundExce
 import com.example.logisticserivce.business_logic.validator.LoadingValidator;
 import com.example.logisticserivce.mapper.LoadingDtoLoadingMapper;
 import com.example.logisticserivce.model.dto.LoadingDto;
-import com.example.logisticserivce.model.entity.Driver;
 import com.example.logisticserivce.model.entity.Loading;
 import com.example.logisticserivce.repository.LoadingRepository;
 import lombok.AllArgsConstructor;
@@ -37,7 +36,7 @@ public class LoadingService {
     public Loading addLoading(LoadingDto loadingDto){
         trimStringFields(loadingDto);
         try {
-            validator.validateLoadingIfAddressAlreadyExists(loadingDto.getAddress());
+            validator.validateLoadingIfAddressAlreadyExists(loadingDto);
         } catch (ResourceAlreadyExistsException ex) {
             log.error(ex.getMessage(), ex);
             throw ex;
@@ -56,7 +55,7 @@ public class LoadingService {
     public Loading modifyLoading(Long id, LoadingDto modifiedLoading) {
         trimStringFields(modifiedLoading);
         try {
-            validator.validateLoadingIfAddressAlreadyExists(modifiedLoading.getAddress(), id);
+            validator.validateLoadingIfAddressAlreadyExists(modifiedLoading, id);
         } catch (ResourceAlreadyExistsException ex) {
             log.error(ex.getMessage(), ex);
             throw ex;

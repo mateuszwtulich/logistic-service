@@ -26,7 +26,7 @@ public class JobArchive implements Serializable {
     private Long id;
 
     @NonNull
-    @Column(name = "Number", nullable = false, unique = true)
+    @Column(name = "Number", nullable = false)
     private Long number;
 
     @NonNull
@@ -48,7 +48,7 @@ public class JobArchive implements Serializable {
     private Manager manager;
 
     @ManyToOne
-    @JoinColumn(name = "Driver", referencedColumnName = "Id", nullable = false)
+    @JoinColumn(name = "Driver", referencedColumnName = "Id")
     private Driver driver;
 
     @ManyToOne

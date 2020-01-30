@@ -33,7 +33,7 @@ public class Loading implements Serializable {
     private Double longitude;
 
     @NotBlank(message = "'address' must not be blank")
-    @Column(name = "Address", nullable = false, unique = true)
+    @Column(name = "Address", nullable = false)
     private String address;
 
     @JsonIgnore
@@ -41,7 +41,6 @@ public class Loading implements Serializable {
     private List<Job> jobList;
 
     @ManyToOne
-//    @Column(name = "PrincipalId")
     @JoinColumn(name = "Principal", referencedColumnName = "Id", nullable = false)
     private Principal principal;
 }
